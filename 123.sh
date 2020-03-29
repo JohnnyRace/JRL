@@ -94,7 +94,6 @@ exit
 
 
 EOF
-
 umount -R /mnt
 arch-chroot /mnt /bin/bash  /opt/install.sh
 
