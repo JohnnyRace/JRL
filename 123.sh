@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #/dev/sda1 - /boot
-#/dev/sda2 - / 
-#/dev/sda3 - swap
+#/dev/sda2 - /swap
+#/dev/sda3 - /root
 #/dev/sda4 - /home
 
 
@@ -16,14 +16,9 @@ cat <<EOF >>/etc/pacman.d/mirrorlist
 ## Generated on 2020-01-02
 ##
 
-## Russia
-#Server = http://mirror.rol.ru/archlinux/\$repo/os/\$arch
-Server = https://mirror.rol.ru/archlinux/\$repo/os/\$arch
-#Server = http://mirror.truenetwork.ru/archlinux/\$repo/os/\$arch
-#Server = http://mirror.yandex.ru/archlinux/\$repo/os/\$arch
-Server = https://mirror.yandex.ru/archlinux/\$repo/os/\$arch
-#Server = http://archlinux.zepto.cloud/\$repo/os/\$arch
-
+## Belarus
+#Server = http://ftp.byfly.by/pub/archlinux/$repo/os/$arch
+#Server = http://mirror.datacenter.by/pub/archlinux/$repo/os/$arch
 EOF
 
 # Активируем новые репы
@@ -33,19 +28,26 @@ pacman -Sy
 
 
 #Форматируем в ext 4 наш диск
-
-mkfs.ext4 /dev/sda1
+mkswap /dev/sda2 -L swap
+mkfs.ext4 /dev/sda3 -L root
+mkfs.ext4 /dev/sda4 -L home
+mkfs.fat -F32 /dev/sda1
 
 
 # Монтируем диск к папке
-mount /dev/sda1 /mnt
+mount /dev/sda3 /mnt
+mkdir /mnt/{boot,home}
+mount /dev/sda1 /mnt/boot/
+mkdir /mnt/boot/efi
+mount /dev/sda4 /mnt/home
+swapon /dev/sda2
 
 
 
 #Устанавливаем based  и linux ядро + софт который нам нужен сразу
-pacstrap /mnt base base-devel linux linux-headers vim bash-completion grub # parted
+pacstrap -i /mnt base linux linux-firmware nano base-devel grub networkmanager os-prober dialog wpa_supplicant efibootmgr vim bash-completion
 
-# прописываем fstab
+#Прописываем fstab
 genfstab -pU /mnt >> /mnt/etc/fstab
 
 #Прокидываем правильные быстрые репы внутрь
@@ -66,24 +68,25 @@ locale-gen
 sleep 1
 ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
 echo "/dev/sda /    ext4 defaults 0 1" > /etc/fstab
-grub-install /dev/sda
+mkinitcpio -P
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=grub
 grub-mkconfig -o /boot/grub/grub.cfg
 pacman-key --init
 pacman-key --populate archlinux
 pacman  -Sy  xorg xorg-server  lightdm-deepin-greeter  
-pacman  -Sy  deepin deepin-extra
+pacman  -Sy  plasma
+pacman -Sy plasma-wayland-session.
+pacman -Sy kde-applications 
 
-
-grep -r -l '#greeter-session=example-gtk-gnome' /etc/lightdm/lightdm.conf | xargs sed -i 's/\#greeter-session\=example-gtk-gnome/greeter-session\=lightdm-deepin-greeter/g'
 #stemctl start lightdm.service
 systemctl enable lightdm.service
 sleep 1
 echo "password for root user:"
 passwd
 echo "add new user"
-useradd -m -g users -s /bin/bash svetozar
+useradd -m -g users -s /bin/bash rocket
 echo "paaswd for new user"
-passwd svetozar
+passwd rocket
 
 
 
@@ -92,6 +95,7 @@ exit
 
 EOF
 
+umount -R /mnt
 arch-chroot /mnt /bin/bash  /opt/install.sh
 
 reboot
