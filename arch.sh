@@ -11,7 +11,7 @@ echo '/dev/sda1 boot'
 echo '/dev/sda2 swap'
 echo '/dev/sda3 root'
 echo '/dev/sda4 home'
-
+cfdisk
 mkswap /dev/sda2 -L swap
 mkfs.ext4 /dev/sda3 -L root
 mkfs.ext4 /dev/sda4 -L home
