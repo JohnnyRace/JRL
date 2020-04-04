@@ -24,8 +24,8 @@ grub-mkconfig -o /boot/grub/grub.cfg
 pacman-key --init
 pacman-key --populate archlinux
 pacman  -Sy  xorg xorg-server 
-pacman  -Sy  plasma
-pacman -Sy plasma-wayland-session.
-pacman -Sy kde-applications 
+#pacman  -Sy  plasma
+#pacman -Sy plasma-wayland-session.
+#pacman -Sy kde-applications 
 sleep 1
 exit
