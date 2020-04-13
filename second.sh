@@ -6,6 +6,7 @@ echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
 echo "ru_RU.UTF-8 UTF-8" >> /etc/locale.gen 
 locale-gen
 sleep 1
+
 nano /etc/hostname
 #rocket
 nano /etc/hosts
@@ -13,19 +14,27 @@ nano /etc/hosts
 #::1				localhost
 #127.0.1.1			rocket.localdomain			rocket
 passwd
-useradd -g users -G power.storage.wheel -m rocket
+useradd -mg users -G wheel,storage,power -s /bin/bash rocket
 passwd rocket
+pacman -S sudo
+EDITOR=nano visudo #uncomment %wheel ALL=(ALL) ALL
+
 pacman -S efibootmgr
 pacman -S os-prober
 os-prober
 mkinitcpio -P
+pacman -S dosfstools mtools efibootmgr grub
 grub-install --target=x86_64-efi --efi-directory=/boot/ --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
+
 pacman-key --init
 pacman-key --populate archlinux
-pacman  -Sy  xorg xorg-server 
-#pacman  -Sy  plasma
-#pacman -Sy plasma-wayland-session.
-#pacman -Sy kde-applications 
-sleep 1
-exit
+pacman -Syu
+pacman -Sy xorg xorg-server 
+pacman -Sy plasma
+pacman -Sy plasma-wayland-session
+pacman -Sy kde-applications
+pacman -S plasma-meta
+systemctl enable sddm
+systemctl enable NetworkManager
+
