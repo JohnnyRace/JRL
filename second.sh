@@ -31,7 +31,8 @@ pacman-key --init
 pacman-key --populate archlinux
 pacman -Syu
 pacman -Sy xorg xorg-server 
-pacman -Sy xfce4 xfce4-goodies
+pacman -Sy plasma plasma-desktop kde-applications 
 systemctl enable sddm
 systemctl enable NetworkManager
+pacman -Sy xf86-video-nouveau
 
