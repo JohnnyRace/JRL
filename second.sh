@@ -31,10 +31,7 @@ pacman-key --init
 pacman-key --populate archlinux
 pacman -Syu
 pacman -Sy xorg xorg-server 
-pacman -Sy plasma
-pacman -Sy plasma-wayland-session
-pacman -Sy kde-applications
-pacman -S plasma-meta
+pacman -Sy xfce4 xfce4-goodies
 systemctl enable sddm
 systemctl enable NetworkManager
 
